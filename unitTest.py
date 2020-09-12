@@ -62,7 +62,7 @@ class TestRoutePaulEmploi(unittest.TestCase):
         token = dataLogin["token"]
         responseProfile = self.app.post('/profil/Airbus', data=dict(token=token))
         dataProfile = json.loads(responseProfile.data)
-        self.assertEquals(dataProfile, {"prenom": "Airbus", "recherche salarie": 1,
+        self.assertEquals(dataProfile, {"nom": "Airbus", "recherche salarie": 1,
                                         "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
     
 if __name__ == "__main__":

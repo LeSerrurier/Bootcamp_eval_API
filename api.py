@@ -53,14 +53,17 @@ def profil(identite):
     token = data["token"]
 
     if session[token]["typeCompte"] == "personne" :
-        infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '" + identite + "'").fetchone()
-        return jsonify({"prenom" : infoPersonne["prenom"], "recherche entreprise" : infoPersonne["rechercheEntreprise"]})
-
-    if session[token]["typeCompte"] == "entreprise" :
-        infoEntreprise = bdd.execute("SELECT * FROM entreprise WHERE nom LIKE '" + identite + "'").fetchone()
-        return jsonify({"nom" : infoEntreprise["nom"], "recherche salarie" : infoEntreprise["rechercheSalarie"]})
-
-    return jsonify({"erreur": "Type de compte non reconnu"})
+        infoEntite = bdd.execute("SELECT * FROM personne, adresse WHERE personne.idAdresse = adresse.id AND prenom LIKE '" + identite + "'").fetchone()
+        jsonReturn = {"prenom" : infoEntite["prenom"], "recherche entreprise" : infoEntite["rechercheEntreprise"]}
+    elif session[token]["typeCompte"] == "entreprise" :
+        infoEntite = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND nom LIKE '" + identite + "'").fetchone()
+        jsonReturn = {"nom" : infoEntite["nom"], "recherche salarie" : infoEntite["rechercheSalarie"]}
+    else :
+        return jsonify({"erreur": "Type de compte non reconnu"})
+    
+    jsonReturn.update({"ville": infoEntite["ville"], "code postal": infoEntite["codePostal"], "rue": infoEntite["rue"], "numero rue": infoEntite["numeroRue"]})
+    return jsonify(jsonReturn)
+    
 
 if __name__ == '__main__':
     app.secret_key = 'pass'
