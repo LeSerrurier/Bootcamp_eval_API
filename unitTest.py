@@ -41,8 +41,30 @@ class TestRoutePaulEmploi(unittest.TestCase):
         self.assertEquals(dataTypeCompteInexistant["connexion"], jsonAttendu)
         self.assertEquals(dataMauvaisMotDePasse["connexion"], jsonAttendu)
         
-    def test_profil_sans_connexion(self) :
-        response = self.app.get('/profil')
+    def test_profil_mauvais_token(self) :
+        response = self.app.post('/profil/Lea',data=dict(token='incorrectToken'))
+        self.assertEquals(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertFalse(data['token'])
+        
+    def test_profil_personne(self) :
+        responseLogin = self.app.get('/connexion', query_string={'identite': 'Lea', 'typeCompte': 'personne', "motdepasse": "motdepasse"})
+        dataLogin = json.loads(responseLogin.data)
+        token = dataLogin["token"]
+        responseProfile = self.app.post('/profil/Lea', data=dict(token=token))
+        dataProfile = json.loads(responseProfile.data)
+        self.assertEquals(dataProfile["prenom"], "Lea")
+        self.assertTrue(dataProfile["recherche entreprise"])
+        
+    def test_profil_entreprise(self) :
+        responseLogin = self.app.get('/connexion', query_string={'identite': 'Airbus', 'typeCompte': 'entreprise', "motdepasse": "motdepasse"})
+        dataLogin = json.loads(responseLogin.data)
+        token = dataLogin["token"]
+        responseProfile = self.app.post('/profil/Airbus', data=dict(token=token))
+        dataProfile = json.loads(responseProfile.data)
+        self.assertEquals(dataProfile["nom"], "Airbus")
+        self.assertTrue(dataProfile["recherche salarie"])
+        
     
 if __name__ == "__main__":
     app.secret_key = 'pass'

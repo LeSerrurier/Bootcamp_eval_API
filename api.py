@@ -52,10 +52,10 @@ def profil(identite):
     infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '" + identite + "'")
     information = {}
     for row in infoPersonne:
-        information.update({"id": row[0], "prenom" : row[1], "recherche entreprise" : row[2]})
+        information.update({"prenom" : row[1], "recherche entreprise" : row[2]})
     return jsonify(information)
 
-        
+       
 
 if __name__ == '__main__':
     app.secret_key = 'pass'
