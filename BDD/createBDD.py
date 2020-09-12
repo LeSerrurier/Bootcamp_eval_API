@@ -37,7 +37,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS embaucher
 conn.execute("INSERT INTO adresse (ville, codePostal, rue, numeroRue) VALUES ('Toulouse', 31200, 'Des caprices', 5)");
 conn.execute("INSERT INTO adresse (ville, codePostal, rue, numeroRue) VALUES ('Tournefeuille', 31170, 'Des chats', 45)");
 conn.execute("INSERT INTO adresse (ville, codePostal, rue, numeroRue) VALUES ('Labege', 31670, 'Des objets', 50)");
-conn.execute("INSERT INTO adresse (ville, codePostal, rue, numeroRue) VALUES ('Toulouse', 31200, 'La résidence', 31)");
+conn.execute("INSERT INTO adresse (ville, codePostal, rue, numeroRue) VALUES ('Toulouse', 31200, 'La residence', 31)");
 
 
 conn.execute("INSERT INTO personne (prenom, rechercheEntreprise, idAdresse, motDePasse) VALUES ('Paul', 1, 4, 'motdepasse')");
