@@ -49,13 +49,18 @@ def connexion():
 @app.route("/profil/<identite>", methods=["POST"])
 @verif_token
 def profil(identite):
-    infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '" + identite + "'")
-    information = {}
-    for row in infoPersonne:
-        information.update({"prenom" : row[1], "recherche entreprise" : row[2]})
-    return jsonify(information)
+    data = request.form
+    token = data["token"]
 
-       
+    if session[token]["typeCompte"] == "personne" :
+        infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '" + identite + "'").fetchone()
+        return jsonify({"prenom" : infoPersonne["prenom"], "recherche entreprise" : infoPersonne["rechercheEntreprise"]})
+
+    if session[token]["typeCompte"] == "entreprise" :
+        infoEntreprise = bdd.execute("SELECT * FROM entreprise WHERE nom LIKE '" + identite + "'").fetchone()
+        return jsonify({"nom" : infoEntreprise["nom"], "recherche salarie" : infoEntreprise["rechercheSalarie"]})
+
+    return jsonify({"erreur": "Type de compte non reconnu"})
 
 if __name__ == '__main__':
     app.secret_key = 'pass'
