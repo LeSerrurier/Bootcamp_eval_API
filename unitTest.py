@@ -1,4 +1,5 @@
 import unittest
+import os
 from api import app
 from flask import json
 
@@ -7,6 +8,10 @@ class TestRoutePaulEmploi(unittest.TestCase):
 
     def setUp(self):
         self.app = app.test_client()
+        
+    def tearDown(self):
+        os.system("BDD/deleteBDD.py")
+       # os.system("BDD/createBDD.py")
     
     def test_connexion_vide(self) :
         response = self.app.get('/connexion')
@@ -64,6 +69,15 @@ class TestRoutePaulEmploi(unittest.TestCase):
         dataProfile = json.loads(responseProfile.data)
         self.assertEquals(dataProfile, {"nom": "Airbus", "recherche salarie": 1,
                                         "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
+    
+    def test_root_suppression_personne(self) :
+        responseLogin = self.app.get('/connexion', query_string={'identite': 'root', 'typeCompte': 'personne', "motdepasse": "root"})
+        dataLogin = json.loads(responseLogin.data)
+        token = dataLogin["token"]
+        responseDelete = self.app.delete('/profil/personne/delete/Lea', data=dict(token=token))
+        self.assertEquals(responseDelete.status_code, 200)
+        data = json.loads(responseDelete.data)
+        self.assertEquals(data, {"suppression": 1, "prenom": "Lea"})
     
 if __name__ == "__main__":
     app.secret_key = 'pass'
