@@ -69,6 +69,22 @@ def voirEntreprise(nom) :
     reqEntreprise = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND nom LIKE '%" + nom + "'").fetchone()
     return jsonify({"nom" : reqEntreprise["nom"], "recherche salarie" : reqEntreprise["rechercheSalarie"], "ville": reqEntreprise["ville"], "code postal": reqEntreprise["codePostal"], "rue": reqEntreprise["rue"], "numero rue": reqEntreprise["numeroRue"]})    
 
+@app.route("/admin/personne/ajouter", methods=["PUT"])
+@helper.verif_token
+def ajouterPersonne() :
+    data = request.form
+    if "prenom" not in data or "rechercheEntreprise" not in data or "idAdresse" not in data or "motdepasse" not in data:
+        return jsonify({"erreur": "Il manque des informations"})
+    prenom = data["prenom"]
+    rechercheEntreprise = data["rechercheEntreprise"]
+    idAdresse = data["idAdresse"]
+    motdepasse = data["motdepasse"]
+    
+    bdd.execute("INSERT INTO personne (prenom, rechercheEntreprise, idAdresse, motDePasse) VALUES ('" + prenom + "'," + rechercheEntreprise + ", " + idAdresse + ", '" + motdepasse + "')")
+    bdd.commit()
+    
+    return (jsonify({"ajout": "reussi"}),201)
+
 @app.route("/admin/personne/delete/<prenom>", methods=["DELETE"])
 @helper.verif_token
 @helper.verif_root_personne

@@ -19,6 +19,18 @@ def verif_token(f):
         return f(*args, **kwargs)
     return decorator
 
+def verif_root(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        data = request.form
+        token = data["token"]
+        
+        if "root" != session[token]["identite"] :
+            return jsonify({"erreur": "Vous n'avez pas les droits"})
+        
+        return f(*args, **kwargs)
+    return decorator
+
 def verif_root_personne(f):
     @wraps(f)
     def decorator(*args, **kwargs):

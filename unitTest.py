@@ -1,4 +1,7 @@
-import unittest
+import unittest, sys
+sys.path.insert(1, "BDD/")
+from createBDD import *
+from deleteBDD import *
 from api import app
 from flask import json
 
@@ -85,6 +88,10 @@ class TestRouteRoot(unittest.TestCase) :
         dataLogin = json.loads(reponseLogin.data)
         self.token = dataLogin["token"]
         
+    def tearDown(self) :
+        supprimerBDD()
+        creerBDD()
+        
     def test_root_voir_profil_personne(self) :
         reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
         self.assertEquals(reponseVoir.status_code, 200)
@@ -94,7 +101,6 @@ class TestRouteRoot(unittest.TestCase) :
         
     def test_root_voir_profil_inexistant(self) :
         reponseVoir = self.app.post('/admin/personne/voir/Dupont', data=dict(token=self.token))
-        self.assertEquals(reponseVoir.status_code, 200)
         data = json.loads(reponseVoir.data)
         self.assertEquals(data, {"erreur": "Personne inexistante"})
         
@@ -112,6 +118,15 @@ class TestRouteRoot(unittest.TestCase) :
         data = json.loads(reponseVoir.data)
         self.assertEquals(data, {"nom": "Airbus", "recherche salarie": 1,
                                         "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
+
+    def test_root_ajouter_personne(self) :
+        reponseAjouter = self.app.put('/admin/personne/ajouter', data=dict(token=self.token, prenom="Pierre", rechercheEntreprise=0, idAdresse=4, motdepasse="motdepasse"))
+        self.assertEquals(reponseAjouter.status_code, 201)
+        data = json.loads(reponseAjouter.data)
+        self.assertEquals(data, {"ajout": "reussi"})
+        reponseVoir = self.app.post('/admin/personne/voir/Pierre', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["prenom"], "Pierre")
         
     def test_root_suppression_personne(self) :
         reponseDelete = self.app.delete('/admin/personne/delete/Lea', data=dict(token=self.token))
