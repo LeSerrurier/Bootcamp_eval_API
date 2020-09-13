@@ -69,7 +69,7 @@ def voirEntreprise(nom) :
     reqEntreprise = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND nom LIKE '%" + nom + "'").fetchone()
     return jsonify({"nom" : reqEntreprise["nom"], "recherche salarie" : reqEntreprise["rechercheSalarie"], "ville": reqEntreprise["ville"], "code postal": reqEntreprise["codePostal"], "rue": reqEntreprise["rue"], "numero rue": reqEntreprise["numeroRue"]})    
 
-@app.route("/admin/personne/ajouter", methods=["PUT"])
+@app.route("/admin/personne/ajouter", methods=["POST"])
 @helper.verif_token
 @helper.verif_root
 def ajouterPersonne() :
@@ -86,7 +86,7 @@ def ajouterPersonne() :
     
     return (jsonify({"ajout": "reussi"}),201)
 
-@app.route("/admin/entreprise/ajouter", methods=["PUT"])
+@app.route("/admin/entreprise/ajouter", methods=["POST"])
 @helper.verif_token
 @helper.verif_root
 def ajouterEntreprise() :

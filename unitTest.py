@@ -125,7 +125,7 @@ class TestRouteRoot(unittest.TestCase) :
                                         "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
 
     def test_root_ajouter_personne(self) :
-        reponseAjouter = self.app.put('/admin/personne/ajouter', data=dict(token=self.token, prenom="Pierre", rechercheEntreprise=0, idAdresse=4, motdepasse="motdepasse"))
+        reponseAjouter = self.app.post('/admin/personne/ajouter', data=dict(token=self.token, prenom="Pierre", rechercheEntreprise=0, idAdresse=4, motdepasse="motdepasse"))
         self.assertEquals(reponseAjouter.status_code, 201)
         data = json.loads(reponseAjouter.data)
         self.assertEquals(data, {"ajout": "reussi"})
@@ -134,7 +134,7 @@ class TestRouteRoot(unittest.TestCase) :
         self.assertEquals(data["prenom"], "Pierre")
         
     def test_root_ajouter_entreprise(self) :
-        reponseAjouter = self.app.put('/admin/entreprise/ajouter', data=dict(token=self.token, nom="CIC", rechercheSalarie=0, idAdresse=3, motdepasse="motdepasse"))
+        reponseAjouter = self.app.post('/admin/entreprise/ajouter', data=dict(token=self.token, nom="CIC", rechercheSalarie=0, idAdresse=3, motdepasse="motdepasse"))
         self.assertEquals(reponseAjouter.status_code, 201)
         data = json.loads(reponseAjouter.data)
         self.assertEquals(data, {"ajout": "reussi"})
@@ -159,6 +159,19 @@ class TestRouteRoot(unittest.TestCase) :
         reponseVoir = self.app.post('/admin/entreprise/voir/Airbus', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
         self.assertEquals(data["erreur"], "Entreprise inexistante")
+        
+    def test_root_update_un_champ_personne(self) :
+        reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token=self.token, prenom="Leanna"))
+        self.assertEquals(reponseUpdate.status_code, 200)
+        data = json.loads(reponseUpdate.data)
+        self.assertEquals(data, {"mise a jour": "reussi", "ancien prenom": "Lea", "nouveau prenom": "Leanna"})
+        reponseVoir = self.app.post('/admin/personne/voir/Leanna', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["prenom"], "Leanna")
+        reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["erreur"], "Personne inexistante")
+        
     
 if __name__ == "__main__":
     app.secret_key = 'pass'
