@@ -124,10 +124,20 @@ def supprimerEntreprise(nom) :
 @helper.verif_root_personne
 def updatePersonne(prenom) :
     data = request.form
-    nouveauPrenom = data["prenom"]
-    bdd.execute("UPDATE personne SET prenom = '" + nouveauPrenom + "' WHERE prenom = '" + prenom  + "'")
+    jsonReturn = {}
+    infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '%" + prenom + "'").fetchone()
+    
+    for key in data :
+        if key == "token" :
+            pass
+        elif key == "prenom" or key == "rechercheEntreprise" or key == "motdepasse" :
+            oldInfo = str(infoPersonne[key])
+            newInfo = str(data[key])
+            bdd.execute("UPDATE personne SET " + key + " = '" + newInfo + "' WHERE prenom = '" + prenom + "'")
+            jsonReturn.update({"mise a jour": "reussi", "ancien " + key : oldInfo, "nouveau " + key : newInfo})    
+    
     bdd.commit()
-    return jsonify({"mise a jour": "reussi", "ancien prenom": prenom, "nouveau prenom": nouveauPrenom})
+    return jsonify(jsonReturn)
 
 if __name__ == '__main__':
     app.secret_key = 'pass'

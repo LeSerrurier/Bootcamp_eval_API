@@ -172,7 +172,21 @@ class TestRouteRoot(unittest.TestCase) :
         data = json.loads(reponseVoir.data)
         self.assertEquals(data["erreur"], "Personne inexistante")
         
-    
+        reponseUpdate = self.app.put('/admin/personne/update/Leanna', data=dict(token = self.token, rechercheEntreprise = 0))
+        data = json.loads(reponseUpdate.data)
+        self.assertEquals(data, {"mise a jour": "reussi", "ancien rechercheEntreprise": "1", "nouveau rechercheEntreprise": '0'})
+        reponseVoir = self.app.post('/admin/personne/voir/Leanna', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["recherche entreprise"], 0)
+        
+    def test_root_update_plusieurs_champ_personne(self) :
+        reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token = self.token, idAdresse = 1, rechercheEntreprise = 0))
+        data = json.loads(reponseUpdate.data)
+        self.assertEquals(data, {"mise a jour": "reussi", "ancien idAdresse": 4, "nouveau idAdresse": 1, "ancien rechercheEntreprise": "1", "nouveau rechercheEntreprise": '0'})
+        reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data, {"idAdresse": 1, "recherche entreprise" : 0})
+        
 if __name__ == "__main__":
     app.secret_key = 'pass'
     unittest.main()
