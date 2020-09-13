@@ -77,6 +77,10 @@ class TestRoutePersonne(unittest.TestCase):
     
 class TestRouteEntreprise(unittest.TestCase) :
 
+    def tearDown(self) :
+        supprimerBDD()
+        creerBDD()
+    
     def setUp(self):
         self.app = app.test_client()
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'Airbus', 'typeCompte': 'entreprise', "motdepasse": "motdepasse"})
@@ -110,6 +114,15 @@ class TestRouteEntreprise(unittest.TestCase) :
         reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
         dataVoir = json.loads(reponseVoir.data)
         self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony"}, "salarie 2": {"prenom": "Toto"}})
+    
+    def test_virer_salarie(self) :
+        reponseVirer = self.app.post('/entreprise/virer/Toto', data=dict(token=self.token))
+        dataVirer = json.loads(reponseVirer.data)
+        self.assertEquals(dataVirer, {"salarie Toto": "vire"})
+        reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
+        dataVoir = json.loads(reponseVoir.data)
+        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony"}})
+        
     
 class TestRouteRoot(unittest.TestCase) :
     def setUp(self):
