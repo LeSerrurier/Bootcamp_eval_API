@@ -103,7 +103,7 @@ def voirSalarie() :
     jsonReturn = {}
     compteur = 1
     for row in reqPersonne :
-        jsonReturn.update({"salarie " + str(compteur) : {"prenom": row["prenom"]}})
+        jsonReturn.update({"salarie " + str(compteur) : {"prenom": row["prenom"], "nombre de jour": row["nombreJourContrat"]}})
         compteur = compteur + 1
     return jsonify(jsonReturn)
 
@@ -118,6 +118,28 @@ def virerSalarie(salarie) :
     bdd.execute("DELETE FROM embaucher WHERE idPersonne = (SELECT id FROM personne WHERE prenom LIKE '" + salarie + "')")
     bdd.commit()
     return jsonify({"salarie " + salarie : "vire"})
+
+@app.route("/entreprise/embauche/<personne>", methods=["POST"])
+@helper.verif_token
+def embauchePersonne(personne) :
+    data = request.form
+    token = data["token"]
+    if session[token]["typeCompte"] != "entreprise" :
+        return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    
+    verifExistant = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '" + personne + "'").fetchone()
+    if not verifExistant :
+        return jsonify({"erreur": "Personne inexistante"})
+    
+    reqEntreprise = bdd.execute("SELECT * FROM entreprise WHERE nom LIKE '" + session[token]["identite"] + "'").fetchone()
+    idEntreprise = reqEntreprise["id"]
+    idPersonne = verifExistant["id"]
+    nbrJour = data["nombreJour"]
+    
+    bdd.execute("INSERT INTO embaucher (idPersonne, idEntreprise, nombreJourContrat) VALUES (" + str(idPersonne) + ", " + str(idEntreprise) + "," + str(nbrJour) + ")")
+    bdd.commit()
+    return jsonify({"embauche reussi" : personne, "nombre de jour": nbrJour})
+
 
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
 @helper.verif_token

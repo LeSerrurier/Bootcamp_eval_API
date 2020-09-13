@@ -114,7 +114,8 @@ class TestRouteEntreprise(unittest.TestCase) :
     def test_voir_ses_salaries(self) :
         reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
         dataVoir = json.loads(reponseVoir.data)
-        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony"}, "salarie 2": {"prenom": "Toto"}})
+        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony", "nombre de jour": 30},
+                                     "salarie 2": {"prenom": "Toto", "nombre de jour": 60}})
     
     def test_virer_salarie(self) :
         reponseVirer = self.app.delete('/entreprise/virer/Toto', data=dict(token=self.token))
@@ -122,7 +123,17 @@ class TestRouteEntreprise(unittest.TestCase) :
         self.assertEquals(dataVirer, {"salarie Toto": "vire"})
         reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
         dataVoir = json.loads(reponseVoir.data)
-        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony"}})
+        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony", "nombre de jour": 30}})
+        
+    def test_embaucher_salarie(self) :
+        reponseEmbauche = self.app.post('/entreprise/embauche/Lea', data=dict(token=self.token, nombreJour=60))
+        dataEmbauche = json.loads(reponseEmbauche.data)
+        self.assertEquals(dataEmbauche, {"embauche reussi": "Lea", "nombre de jour": "60"})
+        reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
+        dataVoir = json.loads(reponseVoir.data)
+        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony", "nombre de jour": 30}, 
+                                     "salarie 2": {"prenom": "Toto", "nombre de jour": 60},
+                                     "salarie 3": {"prenom": "Lea", "nombre de jour": 60}})
         
     
 class TestRouteRoot(unittest.TestCase) :
