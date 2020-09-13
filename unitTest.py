@@ -85,9 +85,19 @@ class TestRouteRoot(unittest.TestCase) :
         dataLogin = json.loads(reponseLogin.data)
         self.token = dataLogin["token"]
         
-    #def test_root_consulter_profil_personne(self) :
+    def test_root_voir_profil_personne(self) :
+        reponseVoir = self.app.get('/admin/personne/voir/Lea')
+        self.assertEquals(reponseVoir.status_code, 200)
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data, {"prenom": "Lea", "recherche entreprise": 1,
+                                        "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31})
         
-        
+    def test_root_voir_profil_inexistant(self) :
+        reponseVoir = self.app.get('/admin/personne/voir/Dupont')
+        self.assertEquals(reponseVoir.status_code, 200)
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data, {"erreur": "Personne inexistante"})
+    
     def test_root_suppression_personne(self) :
         reponseDelete = self.app.delete('/admin/personne/delete/Lea', data=dict(token=self.token))
         self.assertEquals(reponseDelete.status_code, 200)
