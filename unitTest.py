@@ -80,11 +80,17 @@ class TestRouteEntreprise(unittest.TestCase) :
         self.assertEquals(data['connexion'], "reussi")
     
     def test_profil_entreprise(self) :
-        reponseProfile = self.app.post('/profil/Airbus', data=dict(token=self.token))
-        dataProfile = json.loads(reponseProfile.data)
-        self.assertEquals(dataProfile, {"nom": "Airbus", "recherche salarie": 1,
+        reponseProfil = self.app.post('/profil/Airbus', data=dict(token=self.token))
+        dataProfil = json.loads(reponseProfil.data)
+        self.assertEquals(dataProfil, {"nom": "Airbus", "recherche salarie": 1,
                                         "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
 
+    def test_recherche_personne(self) :
+        reponseRecherche = self.app.post('/recherche/personne', data=dict(token=self.token))
+        dataRecherche = json.loads(reponseRecherche.data)
+        self.assertEquals(dataRecherche, {"personne 1" : {"prenom" : "Gerard", "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31},
+                                          "personne 2" : {"prenom" : "Lea", "ville": "Tournefeuille", "code postal": 31200, "rue": "La residence", "numero rue": 31},
+                                          "personne 3" : {"prenom" : "Paul", "ville": "Tournefeuille", "code postal": 31200, "rue": "La residence", "numero rue": 31}})
     
 class TestRouteRoot(unittest.TestCase) :
     def setUp(self):
