@@ -88,6 +88,24 @@ def personneEnRecherche() :
         compteur = compteur + 1
     return jsonify(jsonReturn)
 
+@app.route("/entreprise/salarie", methods=["POST"])
+@helper.verif_token
+def voirSalarie() :
+    data = request.form
+    token = data["token"]
+    if session[token]["typeCompte"] != "entreprise" :
+        return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    reqPersonne = bdd.execute("""SELECT * FROM entreprise as ent, personne as per, embaucher as emb
+                                 WHERE ent.id = emb.idEntreprise
+                                 AND per.id = emb.idPersonne
+                                 AND ent.nom LIKE '""" + session[token]["identite"] + "'").fetchall()
+    jsonReturn = {}
+    compteur = 1
+    for row in reqPersonne :
+        jsonReturn.update({"salarie " + str(compteur) : {"prenom": row["prenom"]}})
+        compteur = compteur + 1
+    return jsonify(jsonReturn)
+
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
 @helper.verif_token
 @helper.verif_root_personne
