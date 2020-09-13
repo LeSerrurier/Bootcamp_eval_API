@@ -64,6 +64,23 @@ def profil(identite):
     jsonReturn.update({"ville": infoEntite["ville"], "code postal": infoEntite["codePostal"], "rue": infoEntite["rue"], "numero rue": infoEntite["numeroRue"]})
     return jsonify(jsonReturn)
     
+@app.route("/admin/personne/delete/<prenom>", methods=["DELETE"])
+@verif_token
+def supprimerPersonne(prenom) :
+    data = request.form
+    token = data["token"]
+    
+    if "root" != session[token]["identite"] :
+        return jsonify({"erreur": "Vous n'avez pas les droits"})
+    
+    verifExistant = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '%" + prenom + "'").fetchone()
+    if not verifExistant :
+        return jsonify({"erreur": "Personne inexistante"})
+    
+    #bdd.execute("DELETE FROM TABLE personne WHERE prenom LIKE '%'" + prenom + "'")
+    #bdd.execute("commit")
+    
+    return jsonify({"suppression": True, "prenom": prenom})
 
 if __name__ == '__main__':
     app.secret_key = 'pass'
