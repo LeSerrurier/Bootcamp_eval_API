@@ -24,7 +24,7 @@ def verif_root(f):
     def decorator(*args, **kwargs):
         data = request.form
         token = data["token"]
-        
+
         if "root" != session[token]["identite"] :
             return jsonify({"erreur": "Vous n'avez pas les droits"})
         
@@ -36,15 +36,14 @@ def verif_root_personne(f):
     def decorator(*args, **kwargs):
         data = request.form
         token = data["token"]
-        prenom = kwargs["prenom"]
-        
+
         if "root" != session[token]["identite"] :
             return jsonify({"erreur": "Vous n'avez pas les droits"})
         
+        prenom = kwargs["prenom"]
         verifExistant = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '%" + prenom + "'").fetchone()
         if not verifExistant :
             return jsonify({"erreur": "Personne inexistante"})
-        
         return f(*args, **kwargs)
     return decorator
 
@@ -53,12 +52,12 @@ def verif_root_entreprise(f):
     def decorator(*args, **kwargs):
         data = request.form
         token = data["token"]
-        prenom = kwargs["nom"]
-        
+
         if "root" != session[token]["identite"] :
             return jsonify({"erreur": "Vous n'avez pas les droits"})
         
-        verifExistant = bdd.execute("SELECT * FROM entreprise WHERE nom LIKE '%" + prenom + "'").fetchone()
+        nom = kwargs["nom"]        
+        verifExistant = bdd.execute("SELECT * FROM entreprise WHERE nom LIKE '%" + nom + "'").fetchone()
         if not verifExistant :
             return jsonify({"erreur": "Entreprise inexistante"})
         

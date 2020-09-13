@@ -100,9 +100,14 @@ class TestRouteRoot(unittest.TestCase) :
                                         "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31})
         
     def test_root_voir_profil_inexistant(self) :
-        reponseVoir = self.app.post('/admin/personne/voir/Dupont', data=dict(token=self.token))
-        data = json.loads(reponseVoir.data)
-        self.assertEquals(data, {"erreur": "Personne inexistante"})
+        reponseVoirPersonne = self.app.post('/admin/personne/voir/Dupont', data=dict(token=self.token))
+        reponseVoirEntreprise = self.app.post('/admin/entreprise/voir/Inc', data=dict(token=self.token))
+        
+        dataPersonne = json.loads(reponseVoirPersonne.data)
+        dataEntreprise = json.loads(reponseVoirEntreprise.data)
+        
+        self.assertEquals(dataPersonne, {"erreur": "Personne inexistante"})
+        self.assertEquals(dataEntreprise, {"erreur": "Entreprise inexistante"})
         
     def test_root_voir_profil_mauvais_compte(self) :
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'Lea', 'typeCompte': 'personne', "motdepasse": "motdepasse"})
@@ -127,6 +132,15 @@ class TestRouteRoot(unittest.TestCase) :
         reponseVoir = self.app.post('/admin/personne/voir/Pierre', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
         self.assertEquals(data["prenom"], "Pierre")
+        
+    def test_root_ajouter_entreprise(self) :
+        reponseAjouter = self.app.put('/admin/entreprise/ajouter', data=dict(token=self.token, nom="CIC", rechercheSalarie=0, idAdresse=3, motdepasse="motdepasse"))
+        self.assertEquals(reponseAjouter.status_code, 201)
+        data = json.loads(reponseAjouter.data)
+        self.assertEquals(data, {"ajout": "reussi"})
+        reponseVoir = self.app.post('/admin/entreprise/voir/CIC', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["nom"], "CIC")
         
     def test_root_suppression_personne(self) :
         reponseDelete = self.app.delete('/admin/personne/delete/Lea', data=dict(token=self.token))

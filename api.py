@@ -58,7 +58,7 @@ def profil(identite):
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
 @helper.verif_token
 @helper.verif_root_personne
-def voirPersone(prenom) :    
+def voirPersonne(prenom) :    
     reqPersonne = bdd.execute("SELECT * FROM personne, adresse WHERE personne.idAdresse = adresse.id AND prenom LIKE '%" + prenom + "'").fetchone()
     return jsonify({"prenom": reqPersonne["prenom"], "recherche entreprise": reqPersonne["rechercheEntreprise"], "ville": reqPersonne["ville"], "code postal": reqPersonne["codePostal"], "rue": reqPersonne["rue"], "numero rue": reqPersonne["numeroRue"]})
  
@@ -71,6 +71,7 @@ def voirEntreprise(nom) :
 
 @app.route("/admin/personne/ajouter", methods=["PUT"])
 @helper.verif_token
+@helper.verif_root
 def ajouterPersonne() :
     data = request.form
     if "prenom" not in data or "rechercheEntreprise" not in data or "idAdresse" not in data or "motdepasse" not in data:
