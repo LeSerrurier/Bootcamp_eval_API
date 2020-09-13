@@ -97,7 +97,22 @@ class TestRouteRoot(unittest.TestCase) :
         self.assertEquals(reponseVoir.status_code, 200)
         data = json.loads(reponseVoir.data)
         self.assertEquals(data, {"erreur": "Personne inexistante"})
-    
+        
+    def test_root_voir_profil_mauvais_compte(self) :
+        reponseLogin = self.app.get('/connexion', query_string={'identite': 'Lea', 'typeCompte': 'personne', "motdepasse": "motdepasse"})
+        dataLogin = json.loads(reponseLogin.data)
+        self.token = dataLogin["token"]
+        reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data, {"erreur": "Vous n'avez pas les droits"})
+        
+    def test_root_voir_profil_entreprise(self) :
+        reponseVoir = self.app.post('/admin/entreprise/voir/Airbus', data=dict(token=self.token))
+        self.assertEquals(reponseVoir.status_code, 200)
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data, {"nom": "Airbus", "recherche salarie": 1,
+                                        "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})     
+        
     def test_root_suppression_personne(self) :
         reponseDelete = self.app.delete('/admin/personne/delete/Lea', data=dict(token=self.token))
         self.assertEquals(reponseDelete.status_code, 200)

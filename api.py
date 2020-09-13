@@ -1,43 +1,12 @@
 import uuid
 import sqlite3
+import helper
 from flask import Flask, jsonify, request, session
-from functools import wraps
 
 app = Flask(__name__)
 
 bdd = sqlite3.connect('BDD/paulEmploi.db', check_same_thread=False)
 bdd.row_factory = sqlite3.Row
-
-def verif_token(f):
-    @wraps(f)
-    def decorator(*args, **kwargs): 
-        data = request.form
-        if "token" not in data :
-            return jsonify({"token": False})
-        token = data["token"]
-        if token not in session :
-           return jsonify({"token": False}) 
-       
-        session[token].update({"token": True})
-        return f(*args, **kwargs)
-    return decorator
-
-def verif_root_personne(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        data = request.form
-        token = data["token"]
-        prenom = kwargs["prenom"]
-        
-        if "root" != session[token]["identite"] :
-            return jsonify({"erreur": "Vous n'avez pas les droits"})
-        
-        verifExistant = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '%" + prenom + "'").fetchone()
-        if not verifExistant :
-            return jsonify({"erreur": "Personne inexistante"})
-        
-        return f(*args, **kwargs)
-    return decorator
 
 @app.route("/connexion", methods=['GET'])
 def connexion():
@@ -66,7 +35,7 @@ def connexion():
     return jsonify({"connexion": jsonSiErreur})
 
 @app.route("/profil/<identite>", methods=["POST"])
-@verif_token
+@helper.verif_token
 def profil(identite):
     data = request.form
     token = data["token"]
@@ -87,15 +56,22 @@ def profil(identite):
     return jsonify(jsonReturn)
     
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
-@verif_token
-@verif_root_personne
+@helper.verif_token
+@helper.verif_root_personne
 def voirPersone(prenom) :    
     reqPersonne = bdd.execute("SELECT * FROM personne, adresse WHERE personne.idAdresse = adresse.id AND prenom LIKE '%" + prenom + "'").fetchone()
     return jsonify({"prenom": reqPersonne["prenom"], "recherche entreprise": reqPersonne["rechercheEntreprise"], "ville": reqPersonne["ville"], "code postal": reqPersonne["codePostal"], "rue": reqPersonne["rue"], "numero rue": reqPersonne["numeroRue"]})
-    
+ 
+@app.route("/admin/entreprise/voir/<nom>", methods=["POST"])
+@helper.verif_token
+@helper.verif_root_entreprise
+def voirEntreprise(nom) :
+    reqEntreprise = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND nom LIKE '%" + nom + "'").fetchone()
+    return jsonify({"nom" : reqEntreprise["nom"], "recherche salarie" : reqEntreprise["rechercheSalarie"], "ville": reqEntreprise["ville"], "code postal": reqEntreprise["codePostal"], "rue": reqEntreprise["rue"], "numero rue": reqEntreprise["numeroRue"]})    
+
 @app.route("/admin/personne/delete/<prenom>", methods=["DELETE"])
-@verif_token
-@verif_root_personne
+@helper.verif_token
+@helper.verif_root_personne
 def supprimerPersonne(prenom) :    
     #bdd.execute("DELETE FROM TABLE personne WHERE prenom LIKE '%'" + prenom + "'")
     #bdd.execute("commit")
