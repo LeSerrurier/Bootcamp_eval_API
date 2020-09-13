@@ -52,6 +52,9 @@ def profil(identite):
     data = request.form
     token = data["token"]
 
+    if identite != session[token]["identite"] :
+        return jsonify({"erreur": "Ce n'est pas votre compte"})
+
     if session[token]["typeCompte"] == "personne" :
         infoEntite = bdd.execute("SELECT * FROM personne, adresse WHERE personne.idAdresse = adresse.id AND prenom LIKE '" + identite + "'").fetchone()
         jsonReturn = {"prenom" : infoEntite["prenom"], "recherche entreprise" : infoEntite["rechercheEntreprise"]}
