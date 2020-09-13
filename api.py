@@ -111,6 +111,14 @@ def supprimerPersonne(prenom) :
     bdd.commit()
     return jsonify({"suppression": True, "prenom": prenom})
 
+@app.route("/admin/entreprise/delete/<nom>", methods=["DELETE"])
+@helper.verif_token
+@helper.verif_root_entreprise
+def supprimerEntreprise(nom) :    
+    bdd.execute("DELETE FROM entreprise WHERE nom LIKE '" + nom + "'")
+    bdd.commit()
+    return jsonify({"suppression": True, "nom": nom})
+
 if __name__ == '__main__':
     app.secret_key = 'pass'
     app.run()
