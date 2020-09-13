@@ -69,6 +69,11 @@ class TestRoutePersonne(unittest.TestCase):
         reponseRecherche = self.app.post('/recherche/personne', data=dict(token=self.token))
         dataRecherche = json.loads(reponseRecherche.data)
         self.assertEquals(dataRecherche["erreur"], "Vous n'avez pas acces a cette partie")
+        
+    def test_voir_salarie_entreprise_pas_acces(self) :
+        reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
+        dataVoir = json.loads(reponseVoir.data)
+        self.assertEquals(dataVoir["erreur"], "Vous n'avez pas acces a cette partie")
     
 class TestRouteEntreprise(unittest.TestCase) :
 
@@ -100,6 +105,11 @@ class TestRouteEntreprise(unittest.TestCase) :
         reponseRecherche = self.app.post('/recherche/entreprise', data=dict(token=self.token))
         dataRecherche = json.loads(reponseRecherche.data)
         self.assertEquals(dataRecherche["erreur"], "Vous n'avez pas acces a cette partie")
+        
+    def test_voir_ses_salaries(self) :
+        reponseVoir = self.app.post('/entreprise/salarie', data=dict(token=self.token))
+        dataVoir = json.loads(reponseVoir.data)
+        self.assertEquals(dataVoir, {"salarie 1": {"prenom": "Anthony"}, "salarie 2": {"prenom": "Toto"}})
     
 class TestRouteRoot(unittest.TestCase) :
     def setUp(self):
