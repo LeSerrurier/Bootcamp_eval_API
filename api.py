@@ -130,7 +130,7 @@ def updatePersonne(prenom) :
     for key in data :
         if key == "token" :
             pass
-        elif key == "prenom" or key == "rechercheEntreprise" or key == "motdepasse" :
+        elif key == "prenom" or key == "rechercheEntreprise" or key == "motdepasse" or key == "idAdresse" :
             oldInfo = str(infoPersonne[key])
             newInfo = str(data[key])
             bdd.execute("UPDATE personne SET " + key + " = '" + newInfo + "' WHERE prenom = '" + prenom + "'")

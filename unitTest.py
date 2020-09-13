@@ -182,10 +182,12 @@ class TestRouteRoot(unittest.TestCase) :
     def test_root_update_plusieurs_champ_personne(self) :
         reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token = self.token, idAdresse = 1, rechercheEntreprise = 0))
         data = json.loads(reponseUpdate.data)
-        self.assertEquals(data, {"mise a jour": "reussi", "ancien idAdresse": 4, "nouveau idAdresse": 1, "ancien rechercheEntreprise": "1", "nouveau rechercheEntreprise": '0'})
+        self.assertEquals(data, {"mise a jour": "reussi",  "ancien rechercheEntreprise": '1', "nouveau rechercheEntreprise": '0', "mise a jour": "reussi", "ancien idAdresse": '4', "nouveau idAdresse": '1'})
         reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
-        self.assertEquals(data, {"idAdresse": 1, "recherche entreprise" : 0})
+        self.assertEquals(data, {"prenom": "Lea", "recherche entreprise": 0,
+                                 "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5})
+
         
 if __name__ == "__main__":
     app.secret_key = 'pass'
