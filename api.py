@@ -86,6 +86,23 @@ def ajouterPersonne() :
     
     return (jsonify({"ajout": "reussi"}),201)
 
+@app.route("/admin/entreprise/ajouter", methods=["PUT"])
+@helper.verif_token
+@helper.verif_root
+def ajouterEntreprise() :
+    data = request.form
+    if "nom" not in data or "rechercheSalarie" not in data or "idAdresse" not in data or "motdepasse" not in data:
+        return jsonify({"erreur": "Il manque des informations"})
+    nom = data["nom"]
+    rechercheSalarie = data["rechercheSalarie"]
+    idAdresse = data["idAdresse"]
+    motdepasse = data["motdepasse"]
+    
+    bdd.execute("INSERT INTO entreprise (nom, rechercheSalarie, idAdresse, motDePasse) VALUES ('" + nom + "'," + rechercheSalarie + ", " + idAdresse + ", '" + motdepasse + "')")
+    bdd.commit()
+    
+    return (jsonify({"ajout": "reussi"}),201)
+
 @app.route("/admin/personne/delete/<prenom>", methods=["DELETE"])
 @helper.verif_token
 @helper.verif_root_personne
