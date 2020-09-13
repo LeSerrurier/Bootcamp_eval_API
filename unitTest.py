@@ -49,15 +49,21 @@ class TestRoutePersonne(unittest.TestCase):
         self.assertFalse(data['token'])
         
     def test_profil_personne(self) :
-        reponseProfile = self.app.post('/profil/Lea', data=dict(token=self.token))
-        dataProfile = json.loads(reponseProfile.data)
-        self.assertEquals(dataProfile, {"prenom": "Lea", "recherche entreprise": 1,
+        reponseProfil = self.app.post('/profil/Lea', data=dict(token=self.token))
+        dataProfil = json.loads(reponseProfil.data)
+        self.assertEquals(dataProfil, {"prenom": "Lea", "recherche entreprise": 1,
                                         "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31})
         
     def test_profil_mauvaise_personne(self) :
-        reponseProfile = self.app.post('/profil/Paul', data=dict(token=self.token))
-        dataProfile = json.loads(reponseProfile.data)
-        self.assertEquals(dataProfile, {"erreur": "Ce n'est pas votre compte"})
+        reponseProfil = self.app.post('/profil/Paul', data=dict(token=self.token))
+        dataProfil = json.loads(reponseProfil.data)
+        self.assertEquals(dataProfil, {"erreur": "Ce n'est pas votre compte"})
+        
+    def test_personne_recherche_entreprise(self) :
+        reponseRecherche = self.app.get("/recherche/entreprise")
+        dataRecherche = json.loads(reponseRecherche.data)
+        self.assertEquals(dataRecherche, {"entreprise 1" : {"nom" : "Airbus", "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5},
+                                          "entreprise 2" : {"nom" : "CapGemini","ville": "Tournefeuille", "code postal": "31170", "rue": "Des chats", "numero rue": 45}})     
     
     
 class TestRouteEntreprise(unittest.TestCase) :
