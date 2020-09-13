@@ -8,6 +8,7 @@ app = Flask(__name__)
 bdd = sqlite3.connect('BDD/paulEmploi.db', check_same_thread=False)
 bdd.row_factory = sqlite3.Row
 
+
 @app.route("/connexion", methods=['GET'])
 def connexion():
     jsonSiErreur = "Les informations ne sont pas conformes"
@@ -54,7 +55,18 @@ def profil(identite):
     
     jsonReturn.update({"ville": infoEntite["ville"], "code postal": infoEntite["codePostal"], "rue": infoEntite["rue"], "numero rue": infoEntite["numeroRue"]})
     return jsonify(jsonReturn)
-    
+  
+@app.route("/recherche/entreprise", methods=["POST"])
+@helper.verif_token
+def entrepriseEnRecherche() :
+    reqEntreprise = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND rechercheSalarie = 1").fetchall()    
+    jsonReturn = {}
+    compteur = 1
+    for row in reqEntreprise :
+        jsonReturn.update({"entreprise " + str(compteur) : {"nom": row["nom"], "ville": row["ville"], "code postal": row["codePostal"], "rue": row["rue"], "numero rue": row["numeroRue"]}})
+        compteur = compteur + 1
+    return jsonify(jsonReturn)
+
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
 @helper.verif_token
 @helper.verif_root_personne
@@ -127,6 +139,7 @@ def updatePersonne(prenom) :
     jsonReturn = {}
     infoPersonne = bdd.execute("SELECT * FROM personne WHERE prenom LIKE '%" + prenom + "'").fetchone()
     
+    nbr = 1
     for key in data :
         if key == "token" :
             pass
@@ -134,8 +147,8 @@ def updatePersonne(prenom) :
             oldInfo = str(infoPersonne[key])
             newInfo = str(data[key])
             bdd.execute("UPDATE personne SET " + key + " = '" + newInfo + "' WHERE prenom = '" + prenom + "'")
-            jsonReturn.update({"mise a jour": "reussi", "ancien " + key : oldInfo, "nouveau " + key : newInfo})    
-    
+            jsonReturn.update({"mise a jour " + str(nbr) : {"statut": "reussi", "ancien " + key : oldInfo, "nouveau " + key : newInfo}})    
+            nbr = int(nbr) + 1
     bdd.commit()
     return jsonify(jsonReturn)
 

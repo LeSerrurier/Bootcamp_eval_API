@@ -7,7 +7,7 @@ from flask import json
 
 
 class TestRoutePersonne(unittest.TestCase):
-
+    maxDiff = None
     def setUp(self):
         self.app = app.test_client()
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'Lea', 'typeCompte': 'personne', "motdepasse": "motdepasse"})
@@ -60,10 +60,10 @@ class TestRoutePersonne(unittest.TestCase):
         self.assertEquals(dataProfil, {"erreur": "Ce n'est pas votre compte"})
         
     def test_personne_recherche_entreprise(self) :
-        reponseRecherche = self.app.get("/recherche/entreprise")
+        reponseRecherche = self.app.post("/recherche/entreprise", data=dict(token=self.token))
         dataRecherche = json.loads(reponseRecherche.data)
         self.assertEquals(dataRecherche, {"entreprise 1" : {"nom" : "Airbus", "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5},
-                                          "entreprise 2" : {"nom" : "CapGemini","ville": "Tournefeuille", "code postal": "31170", "rue": "Des chats", "numero rue": 45}})     
+                                          "entreprise 2" : {"nom" : "CapGemini","ville": "Tournefeuille", "code postal": 31170, "rue": "Des chats", "numero rue": 45}})     
     
     
 class TestRouteEntreprise(unittest.TestCase) :
@@ -87,7 +87,6 @@ class TestRouteEntreprise(unittest.TestCase) :
 
     
 class TestRouteRoot(unittest.TestCase) :
-    
     def setUp(self):
         self.app = app.test_client()
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'root', 'typeCompte': 'personne', "motdepasse": "root"})
@@ -170,7 +169,7 @@ class TestRouteRoot(unittest.TestCase) :
         reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token=self.token, prenom="Leanna"))
         self.assertEquals(reponseUpdate.status_code, 200)
         data = json.loads(reponseUpdate.data)
-        self.assertEquals(data, {"mise a jour": "reussi", "ancien prenom": "Lea", "nouveau prenom": "Leanna"})
+        self.assertEquals(data, {"mise a jour 1": {"statut" : "reussi", "ancien prenom": "Lea", "nouveau prenom": "Leanna"}})
         reponseVoir = self.app.post('/admin/personne/voir/Leanna', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
         self.assertEquals(data["prenom"], "Leanna")
@@ -180,15 +179,16 @@ class TestRouteRoot(unittest.TestCase) :
         
         reponseUpdate = self.app.put('/admin/personne/update/Leanna', data=dict(token = self.token, rechercheEntreprise = 0))
         data = json.loads(reponseUpdate.data)
-        self.assertEquals(data, {"mise a jour": "reussi", "ancien rechercheEntreprise": "1", "nouveau rechercheEntreprise": '0'})
+        self.assertEquals(data, {"mise a jour 1": {"statut": "reussi", "ancien rechercheEntreprise": "1", "nouveau rechercheEntreprise": '0'}})
         reponseVoir = self.app.post('/admin/personne/voir/Leanna', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
         self.assertEquals(data["recherche entreprise"], 0)
         
     def test_root_update_plusieurs_champ_personne(self) :
-        reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token = self.token, idAdresse = 1, rechercheEntreprise = 0))
+        reponseUpdate = self.app.put('/admin/personne/update/Lea', data=dict(token = self.token, rechercheEntreprise = 0, idAdresse = 1))
         data = json.loads(reponseUpdate.data)
-        self.assertEquals(data, {"mise a jour": "reussi",  "ancien rechercheEntreprise": '1', "nouveau rechercheEntreprise": '0', "mise a jour": "reussi", "ancien idAdresse": '4', "nouveau idAdresse": '1'})
+        self.assertEquals(data, {"mise a jour 2": {"statut" : "reussi", "ancien rechercheEntreprise": '1', "nouveau rechercheEntreprise": '0'},
+                                 "mise a jour 1": {"statut" : "reussi", "ancien idAdresse": '4', "nouveau idAdresse": '1'}})
         reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
         data = json.loads(reponseVoir.data)
         self.assertEquals(data, {"prenom": "Lea", "recherche entreprise": 0,
