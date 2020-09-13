@@ -95,6 +95,7 @@ def voirSalarie() :
     token = data["token"]
     if session[token]["typeCompte"] != "entreprise" :
         return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    
     reqPersonne = bdd.execute("""SELECT * FROM entreprise as ent, personne as per, embaucher as emb
                                  WHERE ent.id = emb.idEntreprise
                                  AND per.id = emb.idPersonne
@@ -105,6 +106,18 @@ def voirSalarie() :
         jsonReturn.update({"salarie " + str(compteur) : {"prenom": row["prenom"]}})
         compteur = compteur + 1
     return jsonify(jsonReturn)
+
+@app.route("/entreprise/virer/<salarie>", methods=["DELETE"])
+@helper.verif_token
+def virerSalarie(salarie) :
+    data = request.form
+    token = data["token"]
+    if session[token]["typeCompte"] != "entreprise" :
+        return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    
+    bdd.execute("DELETE FROM embaucher WHERE idPersonne = (SELECT id FROM personne WHERE prenom LIKE '" + salarie + "')")
+    bdd.commit()
+    return jsonify({"salarie " + salarie : "vire"})
 
 @app.route("/admin/personne/voir/<prenom>", methods=["POST"])
 @helper.verif_token
