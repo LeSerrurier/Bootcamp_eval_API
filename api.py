@@ -119,6 +119,16 @@ def supprimerEntreprise(nom) :
     bdd.commit()
     return jsonify({"suppression": True, "nom": nom})
 
+@app.route("/admin/personne/update/<prenom>", methods=["PUT"])
+@helper.verif_token
+@helper.verif_root_personne
+def updatePersonne(prenom) :
+    data = request.form
+    nouveauPrenom = data["prenom"]
+    bdd.execute("UPDATE personne SET prenom = '" + nouveauPrenom + "' WHERE prenom = '" + prenom  + "'")
+    bdd.commit()
+    return jsonify({"mise a jour": "reussi", "ancien prenom": prenom, "nouveau prenom": nouveauPrenom})
+
 if __name__ == '__main__':
     app.secret_key = 'pass'
     app.run()
