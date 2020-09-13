@@ -59,11 +59,32 @@ def profil(identite):
 @app.route("/recherche/entreprise", methods=["POST"])
 @helper.verif_token
 def entrepriseEnRecherche() :
+    data = request.form
+    token = data["token"]
+    if session[token]["typeCompte"] != "personne" :
+        return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    
     reqEntreprise = bdd.execute("SELECT * FROM entreprise, adresse WHERE entreprise.idAdresse = adresse.id AND rechercheSalarie = 1").fetchall()    
     jsonReturn = {}
     compteur = 1
     for row in reqEntreprise :
         jsonReturn.update({"entreprise " + str(compteur) : {"nom": row["nom"], "ville": row["ville"], "code postal": row["codePostal"], "rue": row["rue"], "numero rue": row["numeroRue"]}})
+        compteur = compteur + 1
+    return jsonify(jsonReturn)
+
+@app.route("/recherche/personne", methods=["POST"])
+@helper.verif_token
+def personneEnRecherche() :
+    data = request.form
+    token = data["token"]
+    if session[token]["typeCompte"] != "entreprise" :
+        return jsonify({"erreur": "Vous n'avez pas acces a cette partie"})
+    
+    reqPersonne = bdd.execute("SELECT * FROM personne, adresse WHERE personne.idAdresse = adresse.id AND rechercheEntreprise = 1").fetchall()
+    jsonReturn = {}
+    compteur = 1
+    for row in reqPersonne :
+        jsonReturn.update({"personne " + str(compteur) : {"prenom": row["prenom"], "ville": row["ville"], "code postal": row["codePostal"], "rue": row["rue"], "numero rue": row["numeroRue"]}})
         compteur = compteur + 1
     return jsonify(jsonReturn)
 

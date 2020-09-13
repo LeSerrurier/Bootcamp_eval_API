@@ -7,7 +7,7 @@ from flask import json
 
 
 class TestRoutePersonne(unittest.TestCase):
-    maxDiff = None
+   
     def setUp(self):
         self.app = app.test_client()
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'Lea', 'typeCompte': 'personne', "motdepasse": "motdepasse"})
@@ -64,10 +64,14 @@ class TestRoutePersonne(unittest.TestCase):
         dataRecherche = json.loads(reponseRecherche.data)
         self.assertEquals(dataRecherche, {"entreprise 1" : {"nom" : "Airbus", "ville": "Toulouse", "code postal": 31200, "rue": "Des caprices", "numero rue": 5},
                                           "entreprise 2" : {"nom" : "CapGemini","ville": "Tournefeuille", "code postal": 31170, "rue": "Des chats", "numero rue": 45}})     
-    
+   
+    def test_recherche_personne_pas_acces(self) :
+        reponseRecherche = self.app.post('/recherche/personne', data=dict(token=self.token))
+        dataRecherche = json.loads(reponseRecherche.data)
+        self.assertEquals(dataRecherche["erreur"], "Vous n'avez pas acces a cette partie")
     
 class TestRouteEntreprise(unittest.TestCase) :
-        
+
     def setUp(self):
         self.app = app.test_client()
         reponseLogin = self.app.get('/connexion', query_string={'identite': 'Airbus', 'typeCompte': 'entreprise', "motdepasse": "motdepasse"})
@@ -88,9 +92,14 @@ class TestRouteEntreprise(unittest.TestCase) :
     def test_recherche_personne(self) :
         reponseRecherche = self.app.post('/recherche/personne', data=dict(token=self.token))
         dataRecherche = json.loads(reponseRecherche.data)
-        self.assertEquals(dataRecherche, {"personne 1" : {"prenom" : "Gerard", "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31},
-                                          "personne 2" : {"prenom" : "Lea", "ville": "Tournefeuille", "code postal": 31200, "rue": "La residence", "numero rue": 31},
-                                          "personne 3" : {"prenom" : "Paul", "ville": "Tournefeuille", "code postal": 31200, "rue": "La residence", "numero rue": 31}})
+        self.assertEquals(dataRecherche, {"personne 1" : {"prenom" : "Paul", "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31},
+                                          "personne 2" : {"prenom" : "Gerard", "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31},
+                                          "personne 3" : {"prenom" : "Lea", "ville": "Toulouse", "code postal": 31200, "rue": "La residence", "numero rue": 31}})
+    
+    def test_recherche_entreprise_pas_acces(self) :
+        reponseRecherche = self.app.post('/recherche/entreprise', data=dict(token=self.token))
+        dataRecherche = json.loads(reponseRecherche.data)
+        self.assertEquals(dataRecherche["erreur"], "Vous n'avez pas acces a cette partie")
     
 class TestRouteRoot(unittest.TestCase) :
     def setUp(self):
