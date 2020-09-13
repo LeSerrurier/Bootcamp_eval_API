@@ -107,9 +107,8 @@ def ajouterEntreprise() :
 @helper.verif_token
 @helper.verif_root_personne
 def supprimerPersonne(prenom) :    
-    #bdd.execute("DELETE FROM TABLE personne WHERE prenom LIKE '%'" + prenom + "'")
-    #bdd.execute("commit")
-    
+    bdd.execute("DELETE FROM personne WHERE prenom LIKE '" + prenom + "'")
+    bdd.commit()
     return jsonify({"suppression": True, "prenom": prenom})
 
 if __name__ == '__main__':

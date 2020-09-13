@@ -147,10 +147,18 @@ class TestRouteRoot(unittest.TestCase) :
         self.assertEquals(reponseDelete.status_code, 200)
         data = json.loads(reponseDelete.data)
         self.assertEquals(data, {"suppression": 1, "prenom": "Lea"})
-        
-        #reponseVerifSuppression = self.app.get("/profil/Lea")
-        #self.assertEquals(reponseVerifSupression)
-   
+        reponseVoir = self.app.post('/admin/personne/voir/Lea', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["erreur"], "Personne inexistante")
+    
+    def test_root_suppression_entreprise(self) :
+        reponseDelete = self.app.delete('/admin/entreprise/delete/Airbus', data=dict(token=self.token))
+        self.assertEquals(reponseDelete.status_code, 200)
+        data = json.loads(reponseDelete.data)
+        self.assertEquals(data, {"suppression": 1, "nom": "Airbus"})
+        reponseVoir = self.app.post('/admin/entreprise/voir/Airbus', data=dict(token=self.token))
+        data = json.loads(reponseVoir.data)
+        self.assertEquals(data["erreur"], "Entreprise inexistante")
     
 if __name__ == "__main__":
     app.secret_key = 'pass'
